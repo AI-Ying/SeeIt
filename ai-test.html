@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SeeIt AI分类测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #34495e;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            margin-top: 1rem;
+        }
+        .quick-tests {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .quick-test-btn {
+            background: #27ae60;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+        .quick-test-btn:hover {
+            background: #229954;
+        }
+        .confidence {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+        .confidence.high {
+            background: #d4edda;
+            color: #155724;
+        }
+        .confidence.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .confidence.low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 SeeIt AI分类测试</h1>
+        
+        <div class="input-group">
+            <label for="itemName">物品名称：</label>
+            <input type="text" id="itemName" placeholder="例如：iPhone 14 Pro Max">
+        </div>
+        
+        <div class="input-group">
+            <label for="itemDescription">物品描述：</label>
+            <textarea id="itemDescription" placeholder="例如：苹果最新款手机，深空黑色，256GB存储"></textarea>
+        </div>
+        
+        <button onclick="testAICategory()">🧠 测试AI分类</button>
+        
+        <div id="result"></div>
+        
+        <h3 style="margin-top: 2rem; color: #34495e;">快速测试用例：</h3>
+        <div class="quick-tests">
+            <button class="quick-test-btn" onclick="runQuickTest('iPhone 14 Pro Max', '苹果最新款手机，深空黑色，256GB存储')">📱 iPhone 14</button>
+            <button class="quick-test-btn" onclick="runQuickTest('Nike Air Max 270', '耐克气垫跑鞋，黑色，适合日常运动')">👟 运动鞋</button>
+            <button class="quick-test-btn" onclick="runQuickTest('德龙咖啡机', '意式浓缩咖啡机，带奶泡功能，适合家庭使用')">☕ 咖啡机</button>
+            <button class="quick-test-btn" onclick="runQuickTest('JavaScript高级程序设计', '前端开发必读书籍，涵盖ES6+新特性')">📚 编程书籍</button>
+            <button class="quick-test-btn" onclick="runQuickTest('兰蔻小黑瓶精华液', '抗衰老精华，改善肌肤细纹，保湿滋润')">💄 护肤品</button>
+            <button class="quick-test-btn" onclick="runQuickTest('戴森V11吸尘器', '无线手持吸尘器，强力吸力，适合地毯清洁')">🏠 家用电器</button>
+        </div>
+    </div>
+
+    <script>
+        // 模拟AI分类算法
+        function simulateAICategory(name, description) {
+            const text = (name + ' ' + description).toLowerCase();
+            
+            // 分类关键词映射
+            const categoryKeywords = {
+                '电子产品': [
+                    '手机', '电脑', '笔记本', '平板', '耳机', '音响', '相机', '充电器',
+                    '数据线', '键盘', '鼠标', '显示器', '电视', '冰箱', '空调', '洗衣机',
+                    '智能手表', '手环', '路由器', '充电宝', '移动电源', 'iphone', 'ipad',
+                    'macbook', '华为', '小米', '三星', '索尼', '戴尔', '联想'
+                ],
+                '服装配饰': [
+                    '衣服', '裤子', '裙子', '外套', 't恤', '衬衫', '毛衣', '羽绒服',
+                    '鞋子', '运动鞋', '皮鞋', '靴子', '包包', '钱包', '手表', '眼镜',
+                    '帽子', '围巾', '手套', '袜子', '内衣', '睡衣', '耐克', '阿迪达斯',
+                    '优衣库', 'zara', 'h&m', 'lv', '古驰'
+                ],
+                '生活用品': [
+                    '杯子', '餐具', '锅具', '刀具', '收纳', '清洁', '毛巾', '浴巾',
+                    '床上用品', '枕头', '被子', '床单', '窗帘', '地毯', '灯具', '家具',
+                    '椅子', '桌子', '沙发', '床', '衣柜', '书架', '宜家', '无印良品'
+                ],
+                '书籍文具': [
+                    '书籍', '图书', '小说', '教材', '笔记本', '笔', '铅笔', '钢笔',
+                    '橡皮', '尺子', '文具', '文件夹', '订书机', '胶水', '剪刀', '便利贴',
+                    '打印机', '墨盒', '纸张', '便签', '计算器', '编程', 'javascript',
+                    'python', '设计', '小说'
+                ],
+                '食品饮料': [
+                    '咖啡', '茶叶', '零食', '饼干', '巧克力', '糖果', '饮料', '果汁',
+                    '牛奶', '酸奶', '面包', '蛋糕', '坚果', '干果', '蜂蜜', '调料',
+                    '酱油', '醋', '盐', '糖', '香料', '食用油', '星巴克', '雀巢', '可乐'
+                ],
+                '运动健身': [
+                    '运动鞋', '运动服', '哑铃', '跑步机', '瑜伽垫', '健身', '运动',
+                    '篮球', '足球', '网球', '羽毛球', '乒乓球', '游泳', '骑行', '登山',
+                    '背包', '水壶', '毛巾', '护腕', '护膝', '健身房', 'keep'
+                ],
+                '美妆护肤': [
+                    '洗面奶', '面霜', '乳液', '精华', '面膜', '口红', '粉底', '眼影',
+                    '睫毛膏', '眼线笔', '腮红', '眉笔', '香水', '指甲油', '化妆刷',
+                    '卸妆水', '爽肤水', '防晒霜', '护手霜', '身体乳', '兰蔻', '雅诗兰黛',
+                    '欧莱雅', '美宝莲', 'sk-ii'
+                ],
+                '母婴用品': [
+                    '奶粉', '尿不湿', '婴儿', '儿童', '玩具', '奶瓶', '奶嘴', '婴儿车',
+                    '婴儿床', '安全座椅', '绘本', '拼图', '积木', '文具', '书包',
+                    '衣服', '鞋子', '帽子', '袜子', '餐具', '美赞臣', '花王', '帮宝适'
+                ]
+            };
+            
+            // 计算每个分类的得分
+            const scores = {};
+            Object.entries(categoryKeywords).forEach(([category, keywords]) => {
+                let score = 0;
+                keywords.forEach(keyword => {
+                    if (text.includes(keyword)) {
+                        score += 1;
+                    }
+                });
+                scores[category] = score;
+            });
+            
+            // 找到得分最高的分类
+            const sortedCategories = Object.entries(scores)
+                .sort(([, a], [, b]) => b - a)
+                .filter(([_, score]) => score > 0);
+            
+            if (sortedCategories.length === 0) {
+                return {
+                    category: '其他',
+                    confidence: 0.3,
+                    reasons: ['未找到明确分类特征']
+                };
+            }
+            
+            const bestCategory = sortedCategories[0][0];
+            const bestScore = sortedCategories[0][1];
+            const confidence = Math.min(0.6 + (bestScore * 0.1), 0.95);
+            
+            const reasons = [
+                `匹配到 ${bestScore} 个关键词`,
+                `基于物品名称和描述分析`,
+                `符合${bestCategory}分类特征`
+            ];
+            
+            return {
+                category: bestCategory,
+                confidence: confidence,
+                reasons: reasons
+            };
+        }
+        
+        function testAICategory() {
+            const name = document.getElementById('itemName').value;
+            const description = document.getElementById('itemDescription').value;
+            
+            if (!name.trim() && !description.trim()) {
+                alert('请输入物品名称或描述');
+                return;
+            }
+            
+            const result = simulateAICategory(name, description);
+            displayResult(result);
+        }
+        
+        function runQuickTest(name, description) {
+            document.getElementById('itemName').value = name;
+            document.getElementById('itemDescription').value = description;
+            testAICategory();
+        }
+        
+        function displayResult(result) {
+            const resultDiv = document.getElementById('result');
+            
+            let confidenceClass = 'low';
+            if (result.confidence >= 0.8) confidenceClass = 'high';
+            else if (result.confidence >= 0.6) confidenceClass = 'medium';
+            
+            resultDiv.innerHTML = `
+                <div class="result">
+                    <h3>🤖 AI分类结果</h3>
+                    <p><strong>推荐分类：</strong>${result.category}
+                        <span class="confidence ${confidenceClass}">
+                            置信度: ${Math.round(result.confidence * 100)}%
+                        </span>
+                    </p>
+                    <p><strong>分析依据：</strong></p>
+                    <ul>
+                        ${result.reasons.map(reason => `<li>${reason}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
